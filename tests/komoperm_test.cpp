@@ -89,7 +89,7 @@ TEST(Komoperm, item_count_index_test) {
   EXPECT_EQ(ic1.IndexImpl(kChoose, vals2.begin()), 7);
 }
 
-TEST(Komoperm, item_count_operator_test) {
+TEST(Komoperm, item_count_get_test) {
   ItemCount<Hoge, Hoge::kA, 3, 2> ic1;
   constexpr Choose<std::size_t, 10, 10> kChoose;
 
@@ -119,57 +119,58 @@ TEST(Komoperm, item_count_is_ok_test) {
 }
 
 TEST(Komoperm, permutation_index_test) {
-  constexpr Permutation<Hoge, Hoge::kA, Hoge::kA, Hoge::kA, Hoge::kB, Hoge::kB,
-                        Hoge::kC>
-      c;
+  constexpr Permutations<Hoge, Hoge::kA, Hoge::kA, Hoge::kA, Hoge::kB, Hoge::kB,
+                         Hoge::kC>
+      p;
 
   EXPECT_EQ(
-      c.Index({Hoge::kA, Hoge::kA, Hoge::kA, Hoge::kB, Hoge::kB, Hoge::kC}), 0);
+      p.Index({Hoge::kA, Hoge::kA, Hoge::kA, Hoge::kB, Hoge::kB, Hoge::kC}), 0);
   EXPECT_EQ(
-      c.Index({Hoge::kB, Hoge::kA, Hoge::kA, Hoge::kA, Hoge::kB, Hoge::kC}),
+      p.Index({Hoge::kB, Hoge::kA, Hoge::kA, Hoge::kA, Hoge::kB, Hoge::kC}),
       10);
 
-  EXPECT_THROW(c.Index({Hoge::kA, Hoge::kA}), std::runtime_error);
+  EXPECT_THROW(p.Index({Hoge::kA, Hoge::kA}), std::runtime_error);
   EXPECT_THROW(
-      c.Index({Hoge::kA, Hoge::kA, Hoge::kA, Hoge::kA, Hoge::kB, Hoge::kC}),
+      p.Index({Hoge::kA, Hoge::kA, Hoge::kA, Hoge::kA, Hoge::kB, Hoge::kC}),
       std::runtime_error);
 }
 
-TEST(Komb, permutation_operator_test) {
-  constexpr Permutation<Hoge, Hoge::kA, Hoge::kA, Hoge::kA, Hoge::kB, Hoge::kB,
-                        Hoge::kC>
-      c;
+TEST(Komb, permutation_get_test) {
+  constexpr Permutations<Hoge, Hoge::kA, Hoge::kA, Hoge::kA, Hoge::kB, Hoge::kB,
+                         Hoge::kC>
+      p;
 
-  auto x1 = c[0];
+  auto x1 = p.Get(0);
   std::array<Hoge, 6> ans1 = {Hoge::kA, Hoge::kA, Hoge::kA,
                               Hoge::kB, Hoge::kB, Hoge::kC};
   for (std::size_t i = 0; i < 6; ++i) {
     EXPECT_EQ(ans1[i], x1[i]);
   }
 
-  auto x2 = c[10];
+  auto x2 = p.Get(10);
   std::array<Hoge, 6> ans2 = {Hoge::kB, Hoge::kA, Hoge::kA,
                               Hoge::kA, Hoge::kB, Hoge::kC};
   for (std::size_t i = 0; i < 6; ++i) {
     EXPECT_EQ(ans2[i], x2[i]);
   }
-  EXPECT_THROW(c[c.Size()], std::runtime_error);
+  EXPECT_THROW(p.Get(p.Size()), std::runtime_error);
 }
 
 TEST(Komb, permutation_identity_test) {
-  constexpr Permutation<Hoge, Hoge::kA, Hoge::kA, Hoge::kA, Hoge::kB, Hoge::kB,
-                        Hoge::kC>
-      c;
+  constexpr Permutations<Hoge, Hoge::kA, Hoge::kA, Hoge::kA, Hoge::kB, Hoge::kB,
+                         Hoge::kC>
+      p;
 
-  for (std::size_t i = 0; i < c.Size(); ++i) {
-    EXPECT_EQ(c.Index(c[i]), i);
+  for (std::size_t i = 0; i < p.Size(); ++i) {
+    EXPECT_EQ(p.Index(p.Get(i)), i);
+    EXPECT_EQ(p.Index(p[i]), i);
   }
 }
 
 #if __cplusplus >= 201703L
 TEST(Komoperm, permutation_auto_test) {
   ::testing::StaticAssertTypeEq<
-      PermutationAuto<Hoge::kA, Hoge::kB, Hoge::kA>,
-      Permutation<Hoge, Hoge::kA, Hoge::kB, Hoge::kA> >();
+      PermutationsAuto<Hoge::kA, Hoge::kB, Hoge::kA>,
+      Permutations<Hoge, Hoge::kA, Hoge::kB, Hoge::kA> >();
 }
 #endif  // __cplusplus >= 201703L

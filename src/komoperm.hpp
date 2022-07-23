@@ -308,19 +308,19 @@ inline constexpr std::size_t UniqueCount() noexcept {
 }
 
 /**
- * @brief A helper class for placement of 'C' of  `Val` in `N` spaces.
+ * @brief A helper class for permutation of 'C' of  `Val` in `N` spaces.
  */
 template <typename T, T Val, std::size_t N, std::size_t C>
 struct ItemCount {
   /**
-   * @brief The number of possible placements
+   * @brief The number of possible permutations
    */
   static constexpr std::size_t Size() noexcept {
     return ChooseMetaFunc<N, C>::value;
   }
 
   /**
-   * @brief Get `index` for the given 'Val' placement, and remove it from the
+   * @brief Get `index` for the given 'Val' permutation, and remove it from the
    * sequence.
    */
   template <std::size_t N2, std::size_t M2, typename Iterator,
@@ -344,9 +344,9 @@ struct ItemCount {
   }
 
   /**
-   * @brief Get `index`'th placement.
+   * @brief Get `index`'th permutation.
    *
-   * @param array   The output region for placement.
+   * @param array   The output region for permutation.
    * @param filled  If `filled[i]` is true, the slot of `array` (`array[i]`) is
    * just ignored.
    */
@@ -378,7 +378,7 @@ struct ItemCount {
   }
 
   /**
-   * @brief Check if the input sequence is a possible placement.
+   * @brief Check if the input sequence is a possible permutation.
    */
   template <typename Iterator>
   static constexpr bool IsOk(Iterator begin, Iterator end) noexcept {
@@ -403,10 +403,10 @@ struct ItemCount {
  * @tparam ICs  The parameter pack of ItemCount
  */
 template <typename T, std::size_t N, std::size_t M, typename... ICs>
-class PermutationImpl {
+class PermutationsImpl {
  public:
   /**
-   * @brief The number of possible placements
+   * @brief The number of possible permutations
    */
   constexpr std::size_t Size() const noexcept { return SizeImpl(); }
   constexpr std::size_t Index(const T (&vals)[N]) const {
@@ -416,7 +416,7 @@ class PermutationImpl {
   }
 
   /**
-   * @brief Get `index` for the given placement
+   * @brief Get `index` for the given permutation
    */
   template <typename Container>
   constexpr std::size_t Index(const Container& vals) const {
@@ -430,9 +430,9 @@ class PermutationImpl {
   }
 
   /**
-   * @brief Get `index`'th placement.
+   * @brief Get `index`'th permutation.
    */
-  constexpr Array<T, N> operator[](std::size_t index) const {
+  constexpr Array<T, N> Get(std::size_t index) const {
     if (index >= Size()) {
       throw std::runtime_error("Index out of range");
     }
@@ -444,6 +444,11 @@ class PermutationImpl {
 
     return ret;
   }
+
+  /**
+   * @brief Get `index`'th permutation.
+   */
+  constexpr auto operator[](std::size_t index) const { return Get(index); }
 
  private:
   static constexpr std::size_t SizeImpl() noexcept {
@@ -551,7 +556,7 @@ struct ValueSet {};
  * @brief Create a proper permutation implementation at compile time (See below)
  */
 template <typename V, typename I>
-struct MakePermutationImpl;
+struct MakePermutationsImpl;
 
 /**
  * @brief Create a proper permutation implementation at compile time
@@ -561,9 +566,9 @@ struct MakePermutationImpl;
  *
  * # Example
  *
- * MakePermutationImpl<ValueSet<int, 3, 3, 4, 2, 6, 4>,
+ * MakePermutationsImpl<ValueSet<int, 3, 3, 4, 2, 6, 4>,
  *                     std::index_sequence<0, 1, 2, 3, 4, 5, 6>>::type
- * => PermutationImpl<int, // The type of `Vals...`
+ * => PermutationsImpl<int, // The type of `Vals...`
  *        6,   // The number of `Vals...`
  *        2,   // The maximum number of symbols for `Vals...`
  *        //       <type, symbol, remain, count>
@@ -574,8 +579,8 @@ struct MakePermutationImpl;
  * >
  */
 template <typename T, T... Vals, std::size_t... Indices>
-struct MakePermutationImpl<ValueSet<T, Vals...>,
-                           std::index_sequence<Indices...>> {
+struct MakePermutationsImpl<ValueSet<T, Vals...>,
+                            std::index_sequence<Indices...>> {
  private:
   /**
    * @brief An implementation method for type deduction. This function is never
@@ -589,7 +594,7 @@ struct MakePermutationImpl<ValueSet<T, Vals...>,
     // So we hide the constexpr instance into static method, deduce the proper
     // type, and extract it by `decltype()`.
     constexpr auto kValue = MakeItemCountsImplCalc<T, Vals...>();
-    using type = PermutationImpl<
+    using type = PermutationsImpl<
         T, sizeof...(Vals), std::max({kValue.counts[Indices]...}),
         ItemCount<T, kValue.values[Indices], kValue.remains[Indices],
                   kValue.counts[Indices]>...>;
@@ -604,10 +609,10 @@ struct MakePermutationImpl<ValueSet<T, Vals...>,
 /**
  * @brief A class that handles permutation of duplicates
  *
- * - `Permutation::Size()` returns the number of possible placements.
- * - `Permutation::Index({...})` returns an unique number on [0, Size()) for any
- *   placements.
- * - `Permutation::operator[index]` returns the `index`'th placement for the
+ * - `Permutations::Size()` returns the number of possible permutations.
+ * - `Permutations::Index({...})` returns an unique number on [0, Size()) for
+ *   any permutations.
+ * - `Permutations::operator[index]` returns the `index`'th permutation for the
  *   input sequence. Note that `permutation.Index(permutation[index])` is always
  *   equals to `index`.
  *
@@ -620,12 +625,12 @@ struct MakePermutationImpl<ValueSet<T, Vals...>,
  *      A, B, C,
  * };
  *
- * // Consider the placement of the set {A, A, A, B, B, C}
- * constexpr Permutation<Kind, A, A, A, B, B, C> permutation;
+ * // Consider the permutation of the set {A, A, A, B, B, C}
+ * constexpr Permutations<Kind, A, A, A, B, B, C> permutations;
  *
  * static_assert(permutation.Size() == 60);
  *
- * constexpr auto seq = permutation[10];  // {B, A, A, A, B, C}
+ * constexpr auto seq = permutations[10];  // {B, A, A, A, B, C}
  * constexpr auto index = permutation.Index({B, A, A, A, B, C});  // 10
  * ```
  *
@@ -633,7 +638,7 @@ struct MakePermutationImpl<ValueSet<T, Vals...>,
  * @tparam Vals  A sequence of type `T`. (duplication of values are permitted)
  */
 template <typename T, T... Vals>
-using Permutation = typename detail::MakePermutationImpl<
+using Permutations = typename detail::MakePermutationsImpl<
     detail::ValueSet<T, Vals...>,
     std::make_index_sequence<detail::UniqueCount<T, Vals...>()>>::type;
 
@@ -641,11 +646,11 @@ using Permutation = typename detail::MakePermutationImpl<
 /**
  * @brief A class that handles permutation of duplicates
  *
- * This function is an alternative of `Permutation` in which you can omit the
- * type parameter. For more detail, see the description of `Permutation`.
+ * This function is an alternative of `Permutations` in which you can omit the
+ * type parameter. For more detail, see the description of `Permutations`.
  */
 template <auto Val, decltype(Val)... Vals>
-using PermutationAuto = typename detail::MakePermutationImpl<
+using PermutationsAuto = typename detail::MakePermutationsImpl<
     detail::ValueSet<decltype(Val), Val, Vals...>,
     std::make_index_sequence<
         detail::UniqueCount<decltype(Val), Val, Vals...>()>>::type;
