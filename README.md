@@ -1,2 +1,3 @@
-# kombi
-A modern C++ library for combination with duplicates
+# komoperm
+
+A modern C++ library for permutation with duplicates.

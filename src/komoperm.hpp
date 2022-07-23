@@ -1,5 +1,5 @@
-#ifndef KOMORI_KOMBI_HPP_
-#define KOMORI_KOMBI_HPP_
+#ifndef KOMORI_KOMOPERM_HPP_
+#define KOMORI_KOMOPERM_HPP_
 
 #include <algorithm>
 #include <array>
@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <type_traits>
 
-namespace kombi {
+namespace komoperm {
 namespace detail {
 /**
  * @brief A utility template type for SFINAE
@@ -372,7 +372,7 @@ struct ItemCount {
 };
 
 /**
- * @brief A class that realizes the main features for combination with
+ * @brief A class that realizes the main features for permutation with
  * duplicates
  *
  * @tparam T    The type to be placed. It should be an integer or an enum type
@@ -381,7 +381,7 @@ struct ItemCount {
  * @tparam ICs  The parameter pack of ItemCount
  */
 template <typename T, std::size_t N, std::size_t M, typename... ICs>
-class CombinationImpl {
+class PermutationImpl {
  public:
   /**
    * @brief The number of possible placements
@@ -526,22 +526,22 @@ template <typename T, T... Vals>
 struct ValueSet {};
 
 /**
- * @brief Create a proper combination implementation at compile time (See below)
+ * @brief Create a proper permutation implementation at compile time (See below)
  */
 template <typename V, typename I>
-struct MakeCombinationImpl;
+struct MakePermutationImpl;
 
 /**
- * @brief Create a proper combination implementation at compile time
+ * @brief Create a proper permutation implementation at compile time
  *
  * This class checks the input sequence, and deduces a proper implementation
  * class for that, which is done at compile time (!).
  *
  * # Example
  *
- * MakeCombinationImpl<ValueSet<int, 3, 3, 4, 2, 6, 4>,
+ * MakePermutationImpl<ValueSet<int, 3, 3, 4, 2, 6, 4>,
  *                     std::index_sequence<0, 1, 2, 3, 4, 5, 6>>::type
- * => Combination<int, // The type of `Vals...`
+ * => PermutationImpl<int, // The type of `Vals...`
  *        6,   // The number of `Vals...`
  *        2,   // The maximum number of symbols for `Vals...`
  *        //       <type, symbol, remain, count>
@@ -552,7 +552,7 @@ struct MakeCombinationImpl;
  * >
  */
 template <typename T, T... Vals, std::size_t... Indices>
-struct MakeCombinationImpl<ValueSet<T, Vals...>,
+struct MakePermutationImpl<ValueSet<T, Vals...>,
                            std::index_sequence<Indices...>> {
  private:
   /**
@@ -567,7 +567,7 @@ struct MakeCombinationImpl<ValueSet<T, Vals...>,
     // So we hide the constexpr instance into static method, deduce the proper
     // type, and extract it by `decltype()`.
     constexpr auto kValue = MakeItemCountsImplCalc<T, Vals...>();
-    using type = CombinationImpl<
+    using type = PermutationImpl<
         T, sizeof...(Vals), std::max({kValue.counts[Indices]...}),
         ItemCount<T, kValue.values[Indices], kValue.remains[Indices],
                   kValue.counts[Indices]>...>;
@@ -580,13 +580,13 @@ struct MakeCombinationImpl<ValueSet<T, Vals...>,
 }  // namespace detail
 
 /**
- * @brief A class that handles combination of duplicates
+ * @brief A class that handles permutation of duplicates
  *
- * - `Combination::Size()` returns the number of possible placements.
- * - `Combination::Index({...})` returns an unique number on [0, Size()) for any
+ * - `Permutation::Size()` returns the number of possible placements.
+ * - `Permutation::Index({...})` returns an unique number on [0, Size()) for any
  *   placements.
- * - `Combination::operator[index]` returns the `index`'th placement for the
- *   input sequence. Note that `combination.Index(combination[index])` is always
+ * - `Permutation::operator[index]` returns the `index`'th placement for the
+ *   input sequence. Note that `permutation.Index(permutation[index])` is always
  *   equals to `index`.
  *
  * All methods are marked as constexpr, and can be invoked at compile time.
@@ -599,35 +599,35 @@ struct MakeCombinationImpl<ValueSet<T, Vals...>,
  * };
  *
  * // Consider the placement of the set {A, A, A, B, B, C}
- * constexpr Combination<Kind, A, A, A, B, B, C> combination;
+ * constexpr Permutation<Kind, A, A, A, B, B, C> permutation;
  *
- * static_assert(combination.Size() == 60);
+ * static_assert(permutation.Size() == 60);
  *
- * constexpr auto seq = combination[10];  // {B, A, A, A, B, C}
- * constexpr auto index = combination.Index({B, A, A, A, B, C});  // 10
+ * constexpr auto seq = permutation[10];  // {B, A, A, A, B, C}
+ * constexpr auto index = permutation.Index({B, A, A, A, B, C});  // 10
  * ```
  *
  * @tparam T     An integer or enum
  * @tparam Vals  A sequence of type `T`. (duplication of values are permitted)
  */
 template <typename T, T... Vals>
-using Combination = typename detail::MakeCombinationImpl<
+using Permutation = typename detail::MakePermutationImpl<
     detail::ValueSet<T, Vals...>,
     std::make_index_sequence<detail::UniqueCount<T, Vals...>()>>::type;
 
 #if __cplusplus >= 201703L
 /**
- * @brief A class that handles combination of duplicates
+ * @brief A class that handles permutation of duplicates
  *
- * This function is an alternative of `Combination` in which you can omit the
- * type parameter. For more detail, see the description of `Combination`.
+ * This function is an alternative of `Permutation` in which you can omit the
+ * type parameter. For more detail, see the description of `Permutation`.
  */
 template <auto Val, decltype(Val)... Vals>
-using CombinationAuto = typename detail::MakeCombinationImpl<
+using PermutationAuto = typename detail::MakePermutationImpl<
     detail::ValueSet<decltype(Val), Val, Vals...>,
     std::make_index_sequence<
         detail::UniqueCount<decltype(Val), Val, Vals...>()>>::type;
 #endif  // __cplusplus >= 201703L
-}  // namespace kombi
+}  // namespace komoperm
 
-#endif  // KOMORI_KOMBI_HPP_
+#endif  // KOMORI_KOMOPERM_HPP_

@@ -1,20 +1,20 @@
 cc_library(
-  name = "kombi_lib",
+  name = "komoperm_lib",
   srcs = [],
   hdrs = [
-    "src/kombi.hpp",
+    "src/komoperm.hpp",
   ],
-  include_prefix = "kombi",
+  include_prefix = "komoperm",
   strip_include_prefix = "src",
 )
 
 cc_test(
-  name = "kombi_test",
+  name = "komoperm_test",
   srcs = [
-    "tests/kombi_test.cpp",
+    "tests/komoperm_test.cpp",
   ],
   deps = [
-    ":kombi_lib",
+    ":komoperm_lib",
     "@com_google_googletest//:gtest_main"
   ],
 )

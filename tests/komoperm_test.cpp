@@ -1,11 +1,11 @@
-#include "kombi/kombi.hpp"
+#include "komoperm/komoperm.hpp"
 
 #include <gtest/gtest.h>
 
 #include <iostream>
 
-using namespace kombi::detail;
-using namespace kombi;
+using namespace komoperm::detail;
+using namespace komoperm;
 
 namespace {
 enum class Hoge {
@@ -16,7 +16,7 @@ enum class Hoge {
 };
 }  // namespace
 
-TEST(Kombi, choose_test) {
+TEST(Komoperm, choose_test) {
   constexpr Choose<int, 4, 4> kC1;
   constexpr Choose<int, 5, 2> kC2;
 
@@ -36,7 +36,7 @@ TEST(Kombi, choose_test) {
   EXPECT_EQ((ChooseMetaFunc<1, 2>::value), 0);
 }
 
-TEST(Kombi, copy_test) {
+TEST(Komoperm, copy_test) {
   int a[3] = {2, 6, 4};
   int b[3] = {};
   Copy(std::begin(a), std::end(a), std::begin(b));
@@ -46,7 +46,7 @@ TEST(Kombi, copy_test) {
   EXPECT_EQ(b[2], 4);
 }
 
-TEST(Kombi, merge_sort_test) {
+TEST(Komoperm, merge_sort_test) {
   int a[7] = {3, 4, 5, 1, 2, 9, 2};
   int b[7] = {};
   MergeSort(std::begin(a), std::end(a), std::begin(b));
@@ -60,20 +60,20 @@ TEST(Kombi, merge_sort_test) {
   EXPECT_EQ(a[6], 9);
 }
 
-TEST(Kombi, any_of_test) {
+TEST(Komoperm, any_of_test) {
   EXPECT_TRUE(AnyOf({true, false, true}));
   EXPECT_TRUE(AnyOf({false, false, true}));
   EXPECT_FALSE(AnyOf({false, false, false}));
 }
 
-TEST(Kombi, unique_count_test) {
+TEST(Komoperm, unique_count_test) {
   EXPECT_EQ((UniqueCount<int, 3, 3, 4, 3, 3, 4>()), 2);
   EXPECT_EQ((UniqueCount<Hoge, Hoge::kA, Hoge::kB, Hoge::kA, Hoge::kC, Hoge::kD,
                          Hoge::kA>()),
             4);
 }
 
-TEST(Kombi, item_count_index_test) {
+TEST(Komoperm, item_count_index_test) {
   ItemCount<Hoge, Hoge::kA, 5, 2> ic1;
   constexpr Choose<std::size_t, 10, 10> kChoose;
 
@@ -89,7 +89,7 @@ TEST(Kombi, item_count_index_test) {
   EXPECT_EQ(ic1.IndexImpl(kChoose, vals2.begin()), 7);
 }
 
-TEST(Kombi, item_count_operator_test) {
+TEST(Komoperm, item_count_operator_test) {
   ItemCount<Hoge, Hoge::kA, 3, 2> ic1;
   constexpr Choose<std::size_t, 10, 10> kChoose;
 
@@ -106,7 +106,7 @@ TEST(Kombi, item_count_operator_test) {
   }
 }
 
-TEST(Kombi, item_count_is_ok_test) {
+TEST(Komoperm, item_count_is_ok_test) {
   ItemCount<Hoge, Hoge::kA, 3, 2> ic1;
 
   Array<Hoge, 5> ok{Hoge::kC, Hoge::kA, Hoge::kA, Hoge::kC, Hoge::kC};
@@ -118,8 +118,8 @@ TEST(Kombi, item_count_is_ok_test) {
   EXPECT_FALSE(ic1.IsOk(ng2.begin(), ng2.end()));
 }
 
-TEST(Kombi, combination_index_test) {
-  constexpr Combination<Hoge, Hoge::kA, Hoge::kA, Hoge::kA, Hoge::kB, Hoge::kB,
+TEST(Komoperm, permutation_index_test) {
+  constexpr Permutation<Hoge, Hoge::kA, Hoge::kA, Hoge::kA, Hoge::kB, Hoge::kB,
                         Hoge::kC>
       c;
 
@@ -135,8 +135,8 @@ TEST(Kombi, combination_index_test) {
       std::runtime_error);
 }
 
-TEST(Komb, combination_operator_test) {
-  constexpr Combination<Hoge, Hoge::kA, Hoge::kA, Hoge::kA, Hoge::kB, Hoge::kB,
+TEST(Komb, permutation_operator_test) {
+  constexpr Permutation<Hoge, Hoge::kA, Hoge::kA, Hoge::kA, Hoge::kB, Hoge::kB,
                         Hoge::kC>
       c;
 
@@ -156,8 +156,8 @@ TEST(Komb, combination_operator_test) {
   EXPECT_THROW(c[c.Size()], std::runtime_error);
 }
 
-TEST(Komb, combination_identity_test) {
-  constexpr Combination<Hoge, Hoge::kA, Hoge::kA, Hoge::kA, Hoge::kB, Hoge::kB,
+TEST(Komb, permutation_identity_test) {
+  constexpr Permutation<Hoge, Hoge::kA, Hoge::kA, Hoge::kA, Hoge::kB, Hoge::kB,
                         Hoge::kC>
       c;
 
@@ -167,9 +167,9 @@ TEST(Komb, combination_identity_test) {
 }
 
 #if __cplusplus >= 201703L
-TEST(Kombi, combination_auto_test) {
+TEST(Komoperm, permutation_auto_test) {
   ::testing::StaticAssertTypeEq<
-      CombinationAuto<Hoge::kA, Hoge::kB, Hoge::kA>,
-      Combination<Hoge, Hoge::kA, Hoge::kB, Hoge::kA> >();
+      PermutationAuto<Hoge::kA, Hoge::kB, Hoge::kA>,
+      Permutation<Hoge, Hoge::kA, Hoge::kB, Hoge::kA> >();
 }
 #endif  // __cplusplus >= 201703L
