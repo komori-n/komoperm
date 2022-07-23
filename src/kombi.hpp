@@ -5,7 +5,8 @@
 #include <array>
 #include <cassert>
 #include <cstdint>
-#include <exception>
+#include <limits>
+#include <stdexcept>
 #include <type_traits>
 
 namespace kombi {
@@ -151,16 +152,14 @@ class Choose {
   /**
    * @brief Calculate (n choose m). precondition: (n <= N && m <= M).
    */
-  constexpr T Get(std::size_t n, std::size_t m) const noexcept {
+  constexpr T Get(std::size_t n, std::size_t m) const {
     if (m > n) {
       return 0;
+    } else if (n > N || m > M) {
+      throw std::runtime_error("index out of range");
     }
 
-    // Cut values to prevent illegal access
-    const auto n_minus_1 = std::min(std::max(n, std::size_t{1}) - 1, N - 1);
-    m = std::min(m, M);
-
-    return vals_[n_minus_1][m];
+    return vals_[n - 1][m];
   }
 
  private:
@@ -177,14 +176,14 @@ class Choose {
 template <std::size_t N, std::size_t M>
 struct ChooseMetaFunc
     : std::integral_constant<std::size_t,
-                             // N < M breaks highlight in my environment...
-                             std::less<>()(N, M)
-                                 ? 0
-                                 : ChooseMetaFunc<N - 1, M>::value +
-                                       ChooseMetaFunc<N - 1, M - 1>::value> {};
+                             ChooseMetaFunc<N - 1, M>::value +
+                                 ChooseMetaFunc<N - 1, M - 1>::value> {};
 
 template <std::size_t N>
 struct ChooseMetaFunc<N, 0> : std::integral_constant<std::size_t, 1> {};
+
+template <std::size_t M>
+struct ChooseMetaFunc<0, M> : std::integral_constant<std::size_t, 0> {};
 template <std::size_t N>
 struct ChooseMetaFunc<N, N> : std::integral_constant<std::size_t, 1> {};
 
@@ -340,7 +339,8 @@ struct ItemCount {
       }
 
       if (remain_cnt > 0) {
-        if (index < choose.Get(N - i - 1, remain_cnt - 1)) {
+        if (remain_cnt >= N - i ||
+            index < choose.Get(N - i - 1, remain_cnt - 1)) {
           array[j] = Val;
           filled[j] = true;
           remain_cnt--;
