@@ -1,6 +1,8 @@
 BAZEL_USE_CPP_ONLY_TOOLCHAIN=1
-build --cxxopt=-std=c++17
-build:gcc --action_env CC=g++-11
+
+build:gcc --action_env CC=gcc
+build:gcc --action_env CXX=g++
 build:clang --action_env CC=clang
+build:clang --action_env CXX=clang++
 
 test --test_output=all
