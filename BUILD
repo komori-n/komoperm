@@ -6,6 +6,7 @@ cc_library(
   ],
   include_prefix = "komoperm",
   strip_include_prefix = "src",
+  visibility = ["//visibility:public"],
 )
 
 cc_test(
