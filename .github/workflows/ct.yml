@@ -29,6 +29,8 @@ jobs:
         exclude:
           - compiler: g++-8
             cpp_version: c++20
+          - compiler: g++-9
+            cpp_version: c++20
 
     steps:
       - uses: actions/checkout@v3
