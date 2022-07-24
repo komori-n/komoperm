@@ -34,11 +34,11 @@ jobs:
       - uses: actions/checkout@v3
       - name: Setup Common
         run: |
-          apt-get update && apt-get -y install build-essential npm
-          npm install -g @bazel/bazelisk
+          sudo apt-get update && sudo apt-get -y install build-essential npm
+          sudo npm install -g @bazel/bazelisk
       - name: Setup ${{ matrix.compiler }}
         run: |
-          apt-get update && apt-get -y install ${{ matrix.compiler }}
+          sudo apt-get update && sudo apt-get -y install ${{ matrix.compiler }}
         if: ${{ startsWith(matrix.compiler, 'g++') }}
       - name: Setup ${{ matrix.compiler }}
         run: |
