@@ -44,7 +44,7 @@ jobs:
         run: |
           VERSION=$(echo ${{matrix.compiler}} | sed 's/clang++-//g')
           wget https://apt.llvm.org/llvm.sh
-          bash ./llvm.sh ${VERSION}
+          sudo bash ./llvm.sh ${VERSION}
         if: ${{ startsWith(matrix.compiler, 'clang++') }}
       - name: Test
         run: |
