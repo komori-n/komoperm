@@ -1,0 +1,56 @@
+name: CT
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        compiler:
+          [
+            g++-8,
+            g++-9,
+            g++-10,
+            g++-11,
+            clang++-10,
+            clang++-11,
+            clang++-12,
+            clang++-13,
+            clang++-14,
+          ]
+        cpp_version: [c++14, c++17, c++20]
+        exclude:
+          - compiler: g++-8
+            cpp_version: c++20
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Common
+        run: |
+          apt-get update && apt-get -y install build-essential npm
+          npm install -g @bazel/bazelisk
+      - name: Setup ${{ matrix.compiler }}
+        run: |
+          apt-get update && apt-get -y install ${{ matrix.compiler }}
+        if: ${{ startsWith(matrix.compiler, 'g++') }}
+      - name: Setup ${{ matrix.compiler }}
+        run: |
+          VERSION=$(echo ${{matrix.compiler}} | sed 's/clang++-//g')
+          wget https://apt.llvm.org/llvm.sh
+          bash ./llvm.sh ${VERSION}
+        if: ${{ startsWith(matrix.compiler, 'clang++') }}
+      - name: Test
+        run: |
+          export CC=$(echo ${CXX} | sed 's/^g++/gcc/g' | sed 's/^clang++/clang/g')
+          echo CC=${CC}/CXX=${CXX}/BAZEL_CXXOPTS=${BAZEL_CXXOPTS}
+          bazelisk test :komoperm_test
+        env:
+          CXX: ${{ matrix.compiler }}
+          BAZEL_CXXOPTS: ${{'-std='}}${{ matrix.cpp_version }}
