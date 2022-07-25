@@ -20,7 +20,7 @@ int main() {
 
     static_assert(p.Size() == 60, "The number os possible permutations is 60");
 
-    static_assert(p.Index({B, A, B, C, A, B}) < 60, "{B, A, B, C, A, B} is a permutation of {A, A, A, B, B, C}");
+    static_assert(p.Index({B, A, B, C, A, A}) < 60, "{B, A, B, C, A, A} is a permutation of {A, A, A, B, B, C}");
 
     static_assert(p.Index(p.Get(10)) == 10, "Get() generates the 10th permutation");
 }
