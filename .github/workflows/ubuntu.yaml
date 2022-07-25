@@ -37,11 +37,11 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get -y install build-essential npm
           sudo npm install -g @bazel/bazelisk
-      - name: Setup ${{ matrix.compiler }}
+      - name: Setup gcc
         run: |
           sudo apt-get update && sudo apt-get -y install ${{ matrix.compiler }}
         if: ${{ startsWith(matrix.compiler, 'g++') }}
-      - name: Setup ${{ matrix.compiler }}
+      - name: Setup clang
         run: |
           VERSION=$(echo ${{matrix.compiler}} | sed 's/clang++-//g')
           wget https://apt.llvm.org/llvm.sh
@@ -49,6 +49,7 @@ jobs:
         if: ${{ startsWith(matrix.compiler, 'clang++') }}
       - name: Test
         run: |
+          export BAZEL_USE_CPP_ONLY_TOOLCHAIN=1
           export CC=$(echo ${CXX} | sed 's/^g++/gcc/g' | sed 's/^clang++/clang/g')
           echo CC=${CC}/CXX=${CXX}/BAZEL_CXXOPTS=${BAZEL_CXXOPTS}
           bazelisk test :komoperm_test

@@ -1,5 +1,3 @@
-BAZEL_USE_CPP_ONLY_TOOLCHAIN=1
-
 build:gcc --action_env CC=gcc
 build:gcc --action_env CXX=g++
 build:clang --action_env CC=clang
