@@ -57,7 +57,9 @@ jobs:
           CXX: ${{ matrix.compiler }}
           BAZEL_CXXOPTS: ${{'-std='}}${{ matrix.cpp_version }}
 
-  check:
+  # This job is used for status check. It becomes success iff all of the above
+  # jobs returned success.
+  check-ubuntu:
     runs-on: ubuntu-20.04
     needs: build
     steps:
