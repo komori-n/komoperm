@@ -1,3 +1,5 @@
+startup --output_base=.bazel
+
 build:gcc --action_env CC=gcc
 build:gcc --action_env CXX=g++
 build:clang --action_env CC=clang

@@ -1,0 +1,36 @@
+name: "CodeQL"
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Common
+        run: |
+          sudo apt-get update && sudo apt-get -y install build-essential npm
+          sudo npm install -g @bazel/bazelisk
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: cpp
+
+      - name: Build
+        run: |
+          bazelisk shutdown
+          bazelisk build --spawn_strategy=local --nouse_action_cache \
+            //...
+        env:
+          BAZEL_CXXOPTS: -std=c++17
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
