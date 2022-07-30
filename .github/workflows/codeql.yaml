@@ -28,7 +28,7 @@ jobs:
         run: |
           bazelisk shutdown
           bazelisk build --spawn_strategy=local --nouse_action_cache \
-            :komoperm_test
+            //...
         env:
           BAZEL_CXXOPTS: -std=c++17
 
