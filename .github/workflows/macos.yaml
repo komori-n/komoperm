@@ -39,3 +39,12 @@ jobs:
         env:
           CXX: ${{ matrix.compiler }}
           BAZEL_CXXOPTS: ${{'-std='}}${{ matrix.cpp_version }}
+
+  # This job is used for status check. It becomes success iff all of the above
+  # jobs returned success.
+  check:
+    runs-on: macos-11
+    needs: build-macos
+    steps:
+      - name: Check Build Status
+        run: echo 'Done'

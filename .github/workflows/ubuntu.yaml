@@ -56,3 +56,10 @@ jobs:
         env:
           CXX: ${{ matrix.compiler }}
           BAZEL_CXXOPTS: ${{'-std='}}${{ matrix.cpp_version }}
+
+  check:
+    runs-on: ubuntu-20.04
+    needs: build
+    steps:
+      - name: Check Build Status
+        run: echo 'Done'
