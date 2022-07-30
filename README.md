@@ -4,6 +4,8 @@
 
 [![ct-macos](https://github.com/komori-n/komoperm/actions/workflows/macos.yaml/badge.svg)](https://github.com/komori-n/komoperm/actions/workflows/macos.yaml)
 
+[![CodeQL](https://github.com/komori-n/komoperm/actions/workflows/codeql.yaml/badge.svg)](https://github.com/komori-n/komoperm/actions/workflows/codeql.yaml)
+
 A modern C++ library for permutation with duplicates.
 
 ## Usage
